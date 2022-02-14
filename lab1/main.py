@@ -2,6 +2,9 @@ from matplotlib import pyplot as plt
 
 import csv
 import numpy as np
+import codecs
+import seaborn as sns
+from matplotlib.pyplot import subplot
 
 
 def isfloat(value):
@@ -24,27 +27,31 @@ def feelNaN(input_array: []):
 
 if __name__ == '__main__':
 
-    input = open('ID_data_mass_18122012_test.csv')
+    input = codecs.open("ID_data_mass_18122012_test.csv", "r")
     csvreader = csv.reader(input)
+
+    output = codecs.open("out.csv", "w")
+    mywriter = csv.writer(output, delimiter=',')
+
     rows = np.array([])
 
     table = []
+    count = 0
     for row in csvreader:
         table.append(row)
-    input.close()
-    output = open('out.csv', 'w')
-    mywriter = csv.writer(output, delimiter=',')
-    mywriter.writerow(table[0])
-    mywriter.writerow(table[1])
-    mywriter.writerow(table[2])
-for index in range(3, table.__len__()):
-    string = table[index]
-    length = string.__len__()
-    if isfloat(string[length - 3]) and (isfloat(string[length - 2]) or isfloat(string[length - 1])):
-        mywriter.writerow(feelNaN(table[index]))
-output.close()
-
-
+        if count < 3:
+            mywriter.writerow(row)
+            count += 1
+        else:
+            string = row
+            length = string.__len__()
+            if isfloat(string[length - 3]) or isfloat(string[length - 2]) or isfloat(string[length - 1]):
+                mywriter.writerow(feelNaN(string))
+    output.close()
+    temp = table[1].copy()
+    temp.pop(0)
+    temp.pop(0)
+    x_axis_labels = np.array(temp)
 # теплограмма
 countRows = 0
 length = 0
@@ -65,12 +72,16 @@ for i in range(0, length):
                 left = np.append(left, float(rows[index * 32 + i]))
                 right = np.append(right, float(rows[index * 32 + j]))
         try:
-            r = np.corrcoef(left, right)[0][1]
+            r = np.abs(np.corrcoef(left, right)[0][1])
         except:
             r = 0
         matrix[i][j] = r
         matrix[j][i] = r
-plt.imshow(matrix, cmap='hot', interpolation='nearest')
+# plt.imshow(matrix, cmap='hot', interpolation='nearest')
+# plt.show()
+# plt.set
+ax = subplot(111)
+sns.heatmap(matrix, ax=ax, vmin=0, vmax=1, center=0, cmap='coolwarm', square=True, xticklabels=x_axis_labels,
+            yticklabels=x_axis_labels)
 plt.show()
-print(matrix)
-
+# print(matrix)
