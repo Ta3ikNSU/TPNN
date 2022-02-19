@@ -1,4 +1,4 @@
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, pyplot
 
 import csv
 import numpy as np
@@ -27,7 +27,7 @@ def feelNaN(input_array: []):
 
 if __name__ == '__main__':
 
-    input = codecs.open("ID_data_mass_18122012_test.csv", "r")
+    input = codecs.open("ID_data_mass_18122012_test.csv", "r", encoding="utf-8")
     csvreader = csv.reader(input)
 
     output = codecs.open("out.csv", "w")
@@ -80,8 +80,11 @@ for i in range(0, length):
 # plt.imshow(matrix, cmap='hot', interpolation='nearest')
 # plt.show()
 # plt.set
-ax = subplot(111)
-sns.heatmap(matrix, ax=ax, vmin=0, vmax=1, center=0, cmap='coolwarm', square=True, xticklabels=x_axis_labels,
+sns.set(rc={'figure.figsize': (20, 20)})
+sns.heatmap(matrix, annot=True, fmt=".1g", vmin=0, vmax=1, center=0, cmap='coolwarm', square=True,
+            xticklabels=x_axis_labels,
             yticklabels=x_axis_labels)
+plt.savefig('saving-a-seaborn-plot-as-png-file-transparent.png', transparent=True)
+
 plt.show()
 # print(matrix)
