@@ -1,3 +1,5 @@
+from _testcapi import INT_MIN
+
 from matplotlib import pyplot as plt
 
 import csv
@@ -7,7 +9,7 @@ import seaborn as sns
 from matplotlib.pyplot import subplot
 
 
-def isfloat(value):
+def isfloat(value: object) -> object:
     try:
         float(value)
         return True
@@ -30,30 +32,87 @@ if __name__ == '__main__':
     input = codecs.open("ID_data_mass_18122012_test.csv", "r")
     csvreader = csv.reader(input)
 
-    output = codecs.open("out.csv", "w")
-    mywriter = csv.writer(output, delimiter=',')
+    tableForGenGainRatio = codecs.open("tmpTable.csv", "w")
+    mywriter = csv.writer(tableForGenGainRatio, delimiter=',')
 
-    rows = np.array([])
+    rows = np.array(32)
 
     table = []
     count = 0
+    classes = np.array([])
     for row in csvreader:
         table.append(row)
         if count < 3:
-            mywriter.writerow(row)
+            if(count != 2):
+                mywriter.writerow(np.append(row, ''))
+            else:
+                mywriter.writerow(np.append(row, 'class'))
             count += 1
         else:
             string = row
             length = string.__len__()
+            # >=0, <0, empty
+            # > < e > < e r
+            # - - + + - - A
+            # - - + - + - B
+            # - - + - - + C
+            # - + - + - - D
+            # - + - - + - E
+            # - + - - - + F
+            # + - - + - - G
+            # + - - - + - H
+            # + - - - - + K
             if isfloat(string[length - 3]) or isfloat(string[length - 2]) or isfloat(string[length - 1]):
-                mywriter.writerow(feelNaN(string))
-    output.close()
+                classVals = "A"
+                if isfloat(string[length - 3]):
+                    if float(string[length - 3]) >= 0:
+                        if isfloat(string[length - 2]) or isfloat(string[length - 1]):
+                            kgf = 0
+                            if isfloat(string[length - 2]):
+                                kgf = float(string[length - 2])
+                            if isfloat(string[length - 1]):
+                                kgf = kgf+1000*float(string[length - 1])
+                            if kgf >= 0:
+                                classVals = "G"
+                            else:
+                                classVals = "H"
+                        else:
+                            classVals = "K"
+                    else:
+                        if isfloat(string[length - 2]) or isfloat(string[length - 1]):
+                            kgf = 0
+                            if isfloat(string[length - 2]):
+                                kgf = float(string[length - 2])
+                            if isfloat(string[length - 1]):
+                                kgf = kgf + 1000 * float(string[length - 1])
+                            if kgf >= 0:
+                                classVals = "D"
+                            else:
+                                classVals = "E"
+                        else:
+                            classVals = "F"
+                else:
+                    if isfloat(string[length - 2]) or isfloat(string[length - 1]):
+                        kgf = 0
+                        if isfloat(string[length - 2]):
+                            kgf = float(string[length - 2])
+                        if isfloat(string[length - 1]):
+                            kgf = kgf + 1000 * float(string[length - 1])
+                        if kgf >= 0:
+                            classVals = "A"
+                        else:
+                            classVals = "B"
+                    else:
+                        classVals = "C"
+                classes = np.append(classes, classVals)
+                mywriter.writerow(np.append(feelNaN(string), classVals))
+    tableForGenGainRatio.close()
     temp = table[1].copy()
     temp.pop(0)
     temp.pop(0)
     x_axis_labels = np.array(temp)
-# теплограмма
-countRows = 0
+    # теплограмма
+    countRows = 0
 length = 0
 r = 0
 for row in table:
@@ -81,7 +140,10 @@ for i in range(0, length):
 # plt.show()
 # plt.set
 ax = subplot(111)
-sns.heatmap(matrix, ax=ax, vmin=0, vmax=1, center=0, cmap='coolwarm', square=True, xticklabels=x_axis_labels,
-            yticklabels=x_axis_labels)
-plt.show()
+# sns.heatmap(matrix, ax=ax, vmin=0, vmax=1, center=0, cmap='coolwarm', square=True, xticklabels=x_axis_labels,
+#             yticklabels=x_axis_labels)
 # print(matrix)
+
+
+
+# plt.show()
