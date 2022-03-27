@@ -12,6 +12,8 @@
 
 class NeuralNetwork {
 public :
+    unsigned long long sizeTrainSet = 1<<16;
+    unsigned long long sizeTestSet = 1<<12;
     NeuralNetwork();
 
     void init();
@@ -27,10 +29,10 @@ private:
     Neuron output_neuron = Neuron();
     std::vector<std::vector<Neuron>> neurons;
 
-    double tanh(double x);
+//    double tanh(double x);
 
-    void backPropagation(double etta, double alpha);
-    void frontPropagationTest();
+    void backPropagation(double etta, double alpha, std::ofstream &out);
+    void frontPropagationTest(std::vector<double> &out);
     void frontPropagation(int index);
 
 };
