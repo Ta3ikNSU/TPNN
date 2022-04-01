@@ -7,8 +7,8 @@
 
 #include "Neuron.h"
 
-#define NUM_LAYERS 3
-#define NUM_NEURONS 6
+#define NUM_LAYERS 2
+#define NUM_NEURONS 15
 
 class NeuralNetwork {
 public :

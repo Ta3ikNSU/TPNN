@@ -75,21 +75,30 @@ NeuralNetwork::NeuralNetwork() {
 //    return (exp(x) - exp(-x)) / (exp(x) + exp(-x));
 //}
 
+double tanh_derivative(double val){
+    return (1 - val) *( 1 + val);
+}
+
+double delta_rule(double etta, double sigma, double value){
+    return etta*sigma*value;
+}
 
 // https://inlnk.ru/DBkyVN
 void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &out) {
     for (int pair_number = 0; pair_number < trainset.size(); pair_number++) {
         frontPropagation(pair_number);
 
-        output_neuron.sigma =
-                -output_neuron.value * (1 - output_neuron.value) * (trainset[pair_number].second - output_neuron.value);
-        double input_sigma = 0;
+        // DONE подставить верную формулу для гиперболиечского тангенса (производная)
+        output_neuron.sigma = tanh_derivative(output_neuron.value);
+
+        for (int leftNode = 0; leftNode < NUM_NEURONS; leftNode++) {
+            output_neuron.weights[leftNode] += delta_rule(etta, output_neuron.sigma, neurons[NUM_LAYERS - 1][leftNode].value);
+        }
+
         for (int i = 0; i < NUM_NEURONS; i++) {
             // считаем предпоследний слой
-            neurons[NUM_LAYERS - 1][i].sigma =
-                    output_neuron.value * (1 - output_neuron.value) * output_neuron.sigma * output_neuron.weights[i];
+            neurons[NUM_LAYERS - 1][i].sigma = tanh_derivative(neurons[NUM_LAYERS - 1][i].value) * output_neuron.weights[i];
         }
-        // input_sigma *= trainset[pair_number].first * (1 - trainset[pair_number].first);
 
         for (int j = 0; j < NUM_LAYERS - 1; j++) {
             // обрабатываем оставшиеся слои
@@ -99,10 +108,10 @@ void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &ou
                 for (int k = 0; k < NUM_NEURONS; k++) {
                     neurons[j][i].sigma += neurons[j + 1][k].sigma * neurons[j + 1][k].weights[i];
                 }
-                neurons[j][i].sigma *= neurons[j][i].value * (1 - neurons[j][i].value);
+                neurons[j][i].sigma *= tanh_derivative(neurons[j][i].value);
             }
         }
-
+        double input_sigma = 0;
 
         for (int i = 0; i < NUM_NEURONS; i++) {
             // считаем сигму инпута
@@ -112,24 +121,14 @@ void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &ou
         for (int j = 1; j < NUM_LAYERS; j++) {
             for (int i = 0; i < NUM_NEURONS; i++) {
                 for (int leftNode = 0; leftNode < NUM_NEURONS; leftNode++) {
-                    neurons[j][i].delta_weights[leftNode] = alpha * neurons[j][i].delta_weights[leftNode] +
-                                                            (1 - alpha) * etta * neurons[j][i].sigma *
-                                                            neurons[j - 1][leftNode].value;
-                    neurons[j][i].weights[leftNode] -= neurons[j][i].delta_weights[leftNode];
+                    neurons[j][i].weights[leftNode] += etta * neurons[j][i].sigma * neurons[j - 1][leftNode].value;
                 }
             }
         }
 
         for (int leftNode = 0; leftNode < NUM_NEURONS; leftNode++) {
-            neurons[0][leftNode].delta_weights[0] = alpha * neurons[0][leftNode].delta_weights[0] +
-                                                    (1 - alpha) * etta * neurons[0][leftNode].sigma *
-                                                    trainset[pair_number].first;
-            neurons[0][leftNode].weights[0] -= neurons[0][leftNode].delta_weights[leftNode];
-
-            output_neuron.delta_weights[leftNode] = alpha * output_neuron.delta_weights[leftNode] +
-                                                    (1 - alpha) * etta * output_neuron.sigma *
-                                                    neurons[NUM_LAYERS - 1][leftNode].value;
-            output_neuron.weights[leftNode] -= output_neuron.delta_weights[leftNode];
+            neurons[0][leftNode].weights[0] += etta * neurons[0][leftNode].sigma * trainset[pair_number].first;
+            output_neuron.weights[leftNode] += etta * output_neuron.sigma * neurons[NUM_LAYERS - 1][leftNode].value;
         }
 
         for (int i = 0; i < NUM_LAYERS; i++) {
@@ -148,6 +147,7 @@ void NeuralNetwork::frontPropagation(int index) {
     for (int i = 0; i < NUM_NEURONS; i++) {
         // первый слой заполняем на основании in нейрона
         neurons[0][i].value = trainset[index].first * neurons[0][i].weights[0];
+        neurons[0][i].value = tanh(neurons[0][i].value);
     }
 
     for (int j = 1; j < NUM_LAYERS; j++) {

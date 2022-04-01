@@ -13,7 +13,6 @@
 class Neuron {
 public:
     std::vector<double> weights;
-    std::vector<double> delta_weights;
     Neuron();
     double value;
     double sigma;
