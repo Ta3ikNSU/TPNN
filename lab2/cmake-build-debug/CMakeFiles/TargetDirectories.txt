@@ -1,3 +1,0 @@
-/Users/ta3ik/Documents/GitHub/TPNN/lab2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/ta3ik/Documents/GitHub/TPNN/lab2/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/ta3ik/Documents/GitHub/TPNN/lab2/cmake-build-debug/CMakeFiles/untitled8.dir
