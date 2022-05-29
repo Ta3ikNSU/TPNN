@@ -1,8 +1,7 @@
 
 #include <iostream>
+#include <iterator>
 #include "Network.h"
 
-
 int main() {
-    std::cout << "Hello world";
 }
