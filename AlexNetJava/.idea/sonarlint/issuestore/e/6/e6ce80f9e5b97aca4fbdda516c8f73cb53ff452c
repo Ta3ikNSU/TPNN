@@ -1,0 +1,20 @@
+
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥¼Í
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥¼Í
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥¼Í
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥¼Í
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥¼Í
+s	java:S116"RRename this field "d_input" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ŒØûıÿÿÿÿ8£šÀ†‘0
+n	java:S116"SRename this field "d_output" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(æÀ„8£šÀ†‘0
+h	java:S116	"SRename this field "in_units" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(õğÖ÷
+i	java:S116	"TRename this field "out_units" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(õğÖ÷
+p	java:S116
+"VRename this field "kernel_size" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ö­–ûÿÿÿÿ
+d	java:S116"ORename this field "in_w" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÌÒö
+d	java:S116"ORename this field "in_h" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÌÒö
+e	java:S116"PRename this field "out_w" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÌÒö
+e	java:S116"PRename this field "out_h" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÌÒö
+=
+java:S1659	"'Declare "out_units" on a separate line.(õğÖ÷
+W
+java:S1659"ADeclare "in_h" and all following declarations on a separate line.(ÌÒö
