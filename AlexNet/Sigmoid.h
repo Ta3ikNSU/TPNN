@@ -19,6 +19,8 @@ public:
 
     Sigmoid(int units){
         this->units = units;
+        this->input = std::vector<float>(this->units);
+        this->output = std::vector<float>(this->units);
     }
 };
 

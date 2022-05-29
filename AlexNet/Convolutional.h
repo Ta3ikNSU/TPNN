@@ -7,6 +7,7 @@
 
 
 #include <vector>
+#include <random>
 
 // Свёртка
 class Convolutional {
@@ -17,13 +18,11 @@ public:
     std::vector<float> d_output;
     std::vector<float> weights;
     std::vector<float> d_weights;
-    std::vector<float> bias;
-    std::vector<float> d_bias;
     std::vector<float> input_col;
 
     int padding{};
     int stride = 1;
-    int in_w, in_h, out_w{}, out_h;
+    int in_w, in_h, out_w, out_h;
     int in_units, out_units;
 
     int kernel_size;
@@ -35,7 +34,17 @@ public:
         this->in_h = in_h;
         this->in_w = in_w;
         this->out_h = out_h;
-        this->out_h = out_h;
+        this->out_w = out_w;
+
+        this->weights = std::vector<float>(this->kernel_size * this->kernel_size);
+
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::uniform_real_distribution<double> dist(0.04, 0.06);
+
+        for (float & weight : weights) {
+            weight = dist(mt);
+        }
     }
 };
 

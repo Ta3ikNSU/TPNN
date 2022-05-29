@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Network.h"
 
-int main(){
-    Network network = Network();
+
+int main() {
     std::cout << "Hello world";
 }
