@@ -37,7 +37,7 @@ public class Network {
         }
     }
 
-    void forward(int number) {
+    void forward_backward(int number) {
         ArrayList<ArrayList<Float>> brightness = trainset.get(number);
         // Прогон для всех картинок одной цифры
         for (var bright : brightness) {
@@ -69,7 +69,6 @@ public class Network {
             linear.classification();
 
             ArrayList<Float> output = (ArrayList<Float>) linear.output.clone();
-            // todo()
 
             float error = 0;
             for (int i = 0; i < 10; i++) {
@@ -84,18 +83,34 @@ public class Network {
             errors.get(number).add(error);
 
             linear.d_output = (ArrayList<Float>) linear.output.clone();
-            linear.d_output.set(number,  1 - linear.d_output.get(number));
+            linear.d_output.set(number, 1 - linear.d_output.get(number));
 
             sigmoid.d_output = (ArrayList<Float>) linear.d_input.clone();
+            sigmoid.sigmoid_back();
+
+            convolutional3.conv_back();
+            convolutional3.d_output = (ArrayList<Float>) sigmoid.d_input.clone();
+
+            reLu2.relu_back();
+            reLu2.d_output = (ArrayList<Float>) convolutional3.input.clone();
+
+            convolutional2.conv_back();
+            convolutional2.d_output = (ArrayList<Float>) reLu2.d_input.clone();
+
+            reLu1.relu_back();
+            reLu2.d_output = (ArrayList<Float>) convolutional2.input.clone();
+
+            convolutional1.conv_back();
+            convolutional1.d_output = (ArrayList<Float>) reLu1.d_input.clone();
         }
     }
 
-    void train(int epochs) {
+    public void train(int epochs) {
         errors = new ArrayList<>(10);
         for (int epoch = 0; epoch < epochs; epoch++) {
             // Прогон для всех цифр
             for (int number = 0; number < 10; number++) {
-                forward(number);
+                forward_backward(number);
             }
         }
         errors.forEach(System.out::println);

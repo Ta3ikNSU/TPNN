@@ -26,7 +26,7 @@ public class ReLu {
         }
     }
 
-    void backward() {
+    void relu_back() {
         for (int i = 0; i < units; i++) {
             d_input.set(i, d_output.get(i) * input.get(i));
         }

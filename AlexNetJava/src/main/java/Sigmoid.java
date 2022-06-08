@@ -22,7 +22,7 @@ public class Sigmoid {
         }
     }
 
-    void backward() {
+    void sigmoid_back() {
         for (int i = 0; i < units; i++) {
             d_input.set(i, d_output.get(i) * (output.get(i) * (1 - output.get(i))));
         }

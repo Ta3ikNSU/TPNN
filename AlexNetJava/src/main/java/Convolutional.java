@@ -47,7 +47,26 @@ public class Convolutional {
         }
     }
 
-    void backward(){
+    void conv_back() {
+        ArrayList<Float> sigmas = new ArrayList<>(kernel_size * kernel_size);
+        int r = in_h / stride + 1;
+        int c = in_w / stride + 1;
+        for (int i = 0, x = 0; i < r; i++, x += stride) {
+            for (int j = 0, y = 0; j < c; j++, y += stride) {
+                for (int m = 0; m < kernel_size; m++) {
+                    for (int n = 0; n < kernel_size; n++) {
+                        float temp = sigmas.get(m * kernel_size + n);
+                        sigmas.set(m * kernel_size + n, temp + d_output.get(i * kernel_size + j) * input.get((m + x) * kernel_size + n + y) * weights.get(m * kernel_size + n));
+                    }
+                }
+            }
+        }
 
+        for (int m = 0; m < kernel_size; m++) {
+            for (int n = 0; n < kernel_size; n++) {
+                weights.set(m * kernel_size + n, weights.get(m * kernel_size + n) + sigmas.get(m * kernel_size + n));
+            }
+        }
     }
+
 }
