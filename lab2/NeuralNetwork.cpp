@@ -22,7 +22,7 @@ void NeuralNetwork::generateSets() {
     testset = std::vector<std::pair<double, double>>(sizeTestSet);
     // генерация быстрее, чем считывание данных из файла
     for (int i = 0; i < sizeTrainSet; i++) {
-        double val = -8 * M_PI + static_cast<double>(rand()) / RAND_MAX * (8 * M_PI + 8 * M_PI);
+        double val = - M_PI + static_cast<double>(rand()) / RAND_MAX * (2 * M_PI);
         trainset[i] = std::pair<double, double>(val, cos(val));
     }
     // генерируем интервал [0 ... 2PI] из 2^18 значений
@@ -34,7 +34,7 @@ void NeuralNetwork::generateSets() {
 
 void NeuralNetwork::start_train(int count_epochs) {
     std::ofstream weights("weights.csv");
-    std::vector<double> prevValues = std::vector<double>(testset.size());
+    std::vector<double> prevValues = std::vector<double>(trainset.size());
     std::cout << "---------------------------------" << std::endl;
     std::cout << "Error prev of train";
     frontPropagationTest(prevValues);
@@ -42,19 +42,21 @@ void NeuralNetwork::start_train(int count_epochs) {
     for (int epoch = 0; epoch < count_epochs; epoch++) {
         // для каждой эпохи
         std::cout << "epochs number : " << epoch << std::endl;
-        backPropagation(0.004, 0.1, weights);
+        backPropagation(0.004,  weights);
+        std::vector<double> postValues = std::vector<double>(trainset.size());
+        frontPropagationTest(postValues);
     }
     std::cout << "---------------------------------" << std::endl;
     std::cout << "Result Error of train";
-    std::vector<double> postValues = std::vector<double>(testset.size());
+    std::vector<double> postValues = std::vector<double>(trainset.size());
     frontPropagationTest(postValues);
     std::cout << "---------------------------------" << std::endl;
 
     std::ofstream out("out.csv");
     weights.close();
-    out << "expected, real_before, real_after" << std::endl;
-    for (int i = 0; i < testset.size(); i++) {
-        out << testset[i].second << ", " << prevValues[i] << ", " << postValues[i] << std::endl;
+    std::cout << "in value    |    expected         |     real_after" << std::endl;
+    for (int i = 0; i < trainset.size(); i++) {
+        std::cout << trainset[i].first << "    |   " << trainset[i].second << "    |     " << postValues[i] << std::endl;
     }
     out.close();
 }
@@ -71,25 +73,30 @@ NeuralNetwork::NeuralNetwork() {
 
 }
 
-//double NeuralNetwork::tanh(double x) {
-//    return (exp(x) - exp(-x)) / (exp(x) + exp(-x));
-//}
+double NeuralNetwork::my_tanh(double x) {
+    return tanh(x);
+//    return pow(1  + exp(-x), -1);
+}
+
+
 
 double tanh_derivative(double val) {
-    return (1 - val) * (1 + val);
+     return (1 - val) * (1 + val);
+//    return val * (1-val);
 }
 
 double delta_rule(double etta, double sigma, double value) {
     return etta * sigma * value;
 }
 
-// https://inlnk.ru/DBkyVN
-void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &out) {
+void NeuralNetwork::backPropagation(double etta, std::ofstream &out) {
     for (int pair_number = 0; pair_number < trainset.size(); pair_number++) {
         frontPropagation(pair_number);
 
-        // DONE подставить верную формулу для гиперболиечского тангенса (производная)
-        output_neuron.sigma = tanh_derivative(output_neuron.value);
+        double error_signal = output_neuron.value - trainset[pair_number].second;
+
+        // DONE() подставить верную формулу для гиперболического тангенса (производная)
+        output_neuron.sigma = tanh_derivative(output_neuron.value) * error_signal;
 
         for (int leftNode = 0; leftNode < NUM_NEURONS; leftNode++) {
             output_neuron.weights[leftNode] +=
@@ -99,7 +106,7 @@ void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &ou
         for (int i = 0; i < NUM_NEURONS; i++) {
             // считаем предпоследний слой
             neurons[NUM_LAYERS - 1][i].sigma =
-                    tanh_derivative(neurons[NUM_LAYERS - 1][i].value) * output_neuron.weights[i];
+                    tanh_derivative(neurons[NUM_LAYERS - 1][i].value) * output_neuron.weights[i] * output_neuron.sigma;
         }
 
         for (int j = NUM_LAYERS - 2; j >= 0; j--) {
@@ -116,27 +123,29 @@ void NeuralNetwork::backPropagation(double etta, double alpha, std::ofstream &ou
                 neurons[j][i].sigma = 0;
                 for (int k = 0; k < NUM_NEURONS; k++) {
                     neurons[j][i].sigma +=
-                            tanh_derivative(neurons[j + 1][k].value) * neurons[j + 1][k].weights[i];
+                            tanh_derivative(neurons[j][k].value) * neurons[j + 1][k].weights[i] * neurons[j + 1][k].sigma;
                 }
             }
         }
 
         for (int i = 0; i < NUM_NEURONS; i++) {
             for (int leftNode = 0; leftNode < NUM_NEURONS; leftNode++) {
-                neurons[0][i].weights[leftNode] += delta_rule(etta, neurons[1][i].sigma, neurons[1][leftNode].value);
+                double value = neurons[1][leftNode].value;
+                double sigma = neurons[0][i].sigma;
+                neurons[0][i].weights[leftNode] += delta_rule(etta, sigma, value);
             }
         }
-        for (int i = 0; i < NUM_LAYERS; i++) {
-            for (int j = 0; j < NUM_NEURONS; j++) {
-                for (int k = 0; k < NUM_NEURONS; k++) {
-                    std::cout << neurons[i][j].weights[k] << " ";
-                }
-            }
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << std::endl;
+//        for (int i = 0; i < NUM_LAYERS; i++) {
+//            for (int j = 0; j < NUM_NEURONS; j++) {
+//                for (int k = 0; k < NUM_NEURONS; k++) {
+//                    std::cout << neurons[i][j].weights[k] << " ";
+//                }
+//            }
+//        }
+//        std::cout << std::endl;
+//        std::cout << std::endl;
+//        std::cout << std::endl;
+//        std::cout << std::endl;
     }
 }
 
@@ -145,7 +154,7 @@ void NeuralNetwork::frontPropagation(int index) {
     for (int i = 0; i < NUM_NEURONS; i++) {
         // первый слой заполняем на основании in нейрона
         neurons[0][i].value = trainset[index].first * neurons[0][i].weights[0];
-        neurons[0][i].value = tanh(neurons[0][i].value);
+        neurons[0][i].value = my_tanh(neurons[0][i].value);
     }
 
     for (int j = 1; j < NUM_LAYERS; j++) {
@@ -157,7 +166,7 @@ void NeuralNetwork::frontPropagation(int index) {
                 neurons[j][i].value += neurons[j - 1][k].value * neurons[j][i].weights[k];
             }
             // применяеем функцию активации
-            neurons[j][i].value = tanh(neurons[j][i].value);
+            neurons[j][i].value = my_tanh(neurons[j][i].value);
         }
     }
     output_neuron.value = 0;
@@ -170,33 +179,10 @@ void NeuralNetwork::frontPropagation(int index) {
 
 void NeuralNetwork::frontPropagationTest(std::vector<double> &out) {
     long double error = 0;
-    for (int pair_number = 0; pair_number < testset.size(); pair_number++) {
-        // все пары аргумент -> значение функции
-        for (int i = 0; i < NUM_NEURONS; i++) {
-            // первый слой заполняем на основании in нейрона
-            neurons[0][i].value = testset[pair_number].first * neurons[0][i].weights[0];
-        }
-
-        for (int j = 1; j < NUM_LAYERS; j++) {
-            // обрабатываем оставшиеся слои
-            for (int i = 0; i < NUM_NEURONS; i++) {
-                // для каждого нейрона слоя считаем сумму
-                neurons[j][i].value = 0;
-                for (int k = 0; k < NUM_NEURONS; k++) {
-                    neurons[j][i].value += neurons[j - 1][k].value * neurons[j][i].weights[k];
-                }
-                // применяеем функцию активации
-                double val = tanh(neurons[j][i].value);
-                neurons[j][i].value = val;
-            }
-        }
-        output_neuron.value = 0;
-        // считаем значения выходного нейрона
-        for (int k = 0; k < NUM_NEURONS; k++) {
-            output_neuron.value += neurons[NUM_LAYERS - 1][k].value * output_neuron.weights[k];
-        }
-        error += (output_neuron.value - testset[pair_number].second) *
-                 (output_neuron.value - testset[pair_number].second);
+    for (int pair_number = 0; pair_number < trainset.size(); pair_number++) {
+        frontPropagation(pair_number);
+        error += (output_neuron.value - trainset[pair_number].second) *
+                 (output_neuron.value - trainset[pair_number].second);
         out[pair_number] = output_neuron.value;
     }
     std::cout << "Error = " << error << std::endl;

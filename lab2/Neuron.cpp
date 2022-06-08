@@ -10,9 +10,9 @@
 Neuron::Neuron() {
     std::random_device rd;
     std::default_random_engine eng(rd());
-    std::uniform_real_distribution<double> distr(-0.3, 0.3);
+    std::uniform_real_distribution<double> distr(-0.8, 0.8);
     weights = std::vector<double>(NUM_NEURONS);
     for (int i = 0; i < NUM_NEURONS; i++) {
-        weights[i] = distr(eng); // интервал [-3;3]
+        weights[i] = distr(eng);
     }
 }

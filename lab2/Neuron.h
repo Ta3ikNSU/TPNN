@@ -8,7 +8,8 @@
 
 #include <vector>
 
-#define NUM_NEURONS 6
+#define NUM_LAYERS 2
+#define NUM_NEURONS 12
 
 class Neuron {
 public:

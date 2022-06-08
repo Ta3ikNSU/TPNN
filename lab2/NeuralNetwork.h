@@ -8,12 +8,12 @@
 #include "Neuron.h"
 
 #define NUM_LAYERS 2
-#define NUM_NEURONS 15
+#define NUM_NEURONS 12
 
 class NeuralNetwork {
 public :
-    unsigned long long sizeTrainSet = 1<<16;
-    unsigned long long sizeTestSet = 1<<12;
+    unsigned long long sizeTrainSet = 1<<8;
+    unsigned long long sizeTestSet = 1<<5;
     NeuralNetwork();
 
     void init();
@@ -29,9 +29,9 @@ private:
     Neuron output_neuron = Neuron();
     std::vector<std::vector<Neuron>> neurons;
 
-//    double tanh(double x);
+    double my_tanh(double x);
 
-    void backPropagation(double etta, double alpha, std::ofstream &out);
+    void backPropagation(double etta, std::ofstream &out);
     void frontPropagationTest(std::vector<double> &out);
     void frontPropagation(int index);
 

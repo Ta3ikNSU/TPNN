@@ -6,6 +6,6 @@
 int main(){
     NeuralNetwork network = NeuralNetwork();
     network.init();
-    network.start_train(2);
+    network.start_train(512);
     return 0;
 }
